@@ -5,6 +5,17 @@ hard requirement unless the user explicitly says otherwise. If a rule conflicts 
 existing code in the repo, follow the existing code's conventions and point out the
 conflict instead of silently rewriting large parts.
 
+This guide has two parts, both always loaded:
+
+1. **Principles** (`P0`–`P16`) — how to think, decide, choose technology, ask
+   questions and report. Imported from `docs/claude/principles.md`:
+
+@docs/claude/principles.md
+
+2. **Technical rules** (`1`–`200`) — the concrete FiveM implementation rules below.
+
+Read the principles first; the technical rules are how they are implemented.
+
 ---
 
 ## 0. Project facts (FILL THESE IN)
@@ -39,7 +50,7 @@ frameworks: if the server runs Qbox, do not write ESX code.
    runs on before using it.
 4. **You cannot run the game.** There is no GTA V or FXServer in this environment. Do not
    try to start one, download one, or pretend you tested in-game. Run every check that
-   *is* possible (Section 15) and give the user an in-game test list.
+   *is* possible (Section 16) and give the user an in-game test list.
 5. **Smallest correct change.** Do not add features, libraries, abstraction layers or
    config options that were not asked for. Do not refactor unrelated code.
 6. **No placeholders in delivered code.** No `-- TODO: implement`, no fake export names,
@@ -48,8 +59,9 @@ frameworks: if the server runs Qbox, do not write ESX code.
    that other resources may depend on without saying so and grepping the repo for uses.
 8. **Explain trade-offs briefly.** When there are two reasonable approaches, pick one,
    say why in one or two sentences, and move on.
-9. **Report honestly at the end:** what changed (files), what was tested and the exact
-   result, what could not be tested, and the in-game checklist.
+9. **Report honestly at the end** using the response format in P15: what changed,
+   why, files, what was tested and the exact result, what could not be tested, and
+   the in-game checklist.
 10. **Ask only when blocked.** If a decision is genuinely the user's (gameplay design,
     economy values), ask. Otherwise use sensible defaults and state them.
 
@@ -236,9 +248,10 @@ The technologies are:
 52. **When hidden, render nothing:** `if (!visible) return null;` at the app root.
     Do not hide with `opacity: 0` or `visibility: hidden` — the DOM still exists and
     animations still run.
-53. Avoid re-rendering the whole tree on every message. Use a store with selectors
-    (Zustand, Jotai, or `useSyncExternalStore`) so a speed update only re-renders the
-    speedometer, not the whole HUD.
+53. Avoid re-rendering the whole tree on every message. Start with local state (P6.6).
+    Only for high-frequency data (HUD speed, status bars) use selector-based
+    subscriptions (`useSyncExternalStore`, or the project's existing store) so a speed
+    update re-renders only the speedometer. Justify any new store library.
 54. Do not put high-frequency values (speed, coordinates, timers) in a top-level React
     Context — every consumer re-renders on each update.
 55. Use `React.memo`, `useMemo`, `useCallback` where they prevent real re-renders of
@@ -256,8 +269,9 @@ The technologies are:
     Google Fonts CDN — it adds network requests and fails offline.
 62. No video backgrounds, no autoplaying audio loops, no large GIFs. Use a static image.
 63. Avoid `console.log` in hot paths (message handlers, renders) in production builds.
-64. TypeScript with `strict: true`. Type every NUI message and callback payload in one
-    shared `types.ts`.
+64. Medium/large UIs: TypeScript with `strict: true`, every NUI message and callback
+    payload typed in one shared `types.ts`, no `any` without a stated reason (P4.3).
+    Tiny UIs may use plain JS.
 65. Use ESLint + Prettier if the project has them; follow the existing config.
 
 ---
@@ -268,6 +282,7 @@ The technologies are:
     layer composited over the game — the game world is not "behind" the DOM, so a
     backdrop blur does not blur the game at all, and it still costs GPU time every frame.
     Use a semi-transparent solid background instead: `background: rgba(12, 12, 16, 0.88)`.
+    Only exception: the user explicitly asks after being told the cost (P7.2).
 67. Avoid other expensive filters too: `filter: drop-shadow()`, large `filter` chains,
     `mix-blend-mode` on big areas.
 68. Keep `box-shadow` small and few. No huge multi-layer glow shadows on many elements.
@@ -573,8 +588,10 @@ Target: **0.00–0.01 ms idle** and **< 0.10 ms while in active use** in `resmon
 ## 16. Testing — what Claude can and must do
 
 Claude **cannot** run GTA V, FXServer, natives, resmon or the profiler. Do not try.
-Claude **must** run every applicable check below, install tools if missing (and say so
-if installation is impossible), and report results honestly.
+Claude **must** run every applicable check below and report results honestly.
+Verification tools (luacheck, selene, busted) may be installed temporarily or globally
+to run checks, but are never added to the project's dependencies without asking
+(P4.6). If a tool cannot be installed, say so.
 
 183. **Lua lint:** `luacheck .` or `selene .` with a config that knows FiveM globals
      (natives, `CreateThread`, `Wait`, `vector3`, `exports`, `lib`, `cache`, `MySQL`,
