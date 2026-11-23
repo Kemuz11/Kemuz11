@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>noclip — demo store</title>
+<meta name="description" content="A demo storefront concept. Nothing is sold here.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="is-loading">
+
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro__word" id="introWord">
+    <span>W</span><span>e</span><span>l</span><span>c</span><span>o</span><span>m</span><span>e</span>
+  </div>
+  <div class="intro__rule"></div>
+  <p class="intro__sub">noclip store</p>
+</div>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="header" id="header">
+  <a class="wordmark" href="#top">noclip</a>
+  <nav class="nav" id="nav" aria-label="Main">
+    <a href="#popular">Popular</a>
+    <a href="#products">Products</a>
+    <a href="#bundles">Bundles</a>
+    <a href="#status">Status</a>
+    <a href="#keys">My keys</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <div class="header__actions">
+    <button class="cart-btn" id="cartOpen" type="button" aria-haspopup="dialog">
+      Cart <span class="cart-btn__count" id="cartCount">0</span>
+    </button>
+    <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="wrap">
+      <h1 class="hero__title">
+        <span class="mask"><span>See everything.</span></span>
+        <span class="mask"><span>Miss nothing.</span></span>
+      </h1>
+      <div class="hero__row">
+        <p class="hero__lede">Aim, visuals and utility tools for five games. Your key arrives the moment you check out, and every build is updated within hours of a patch.</p>
+        <div class="hero__cta">
+          <a class="btn btn--solid" href="#products">Browse products</a>
+          <a class="btn" href="#bundles">See bundles</a>
+        </div>
+      </div>
+    </div>
+    <div class="wrap">
+      <figure class="preview">
+        <canvas id="preview" aria-label="Animated preview of player outlines and an aim marker"></canvas>
+        <figcaption>
+          <span>Live preview</span>
+          <span id="previewHint">Move your cursor into the frame</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker__track" id="ticker"></div>
+  </div>
+
+  <section class="section" id="popular">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="mask" data-reveal><span>Most popular</span></h2>
+        <p data-reveal>What people bought most over the last 30 days.</p>
+      </div>
+      <ol class="rank" id="rank"></ol>
+    </div>
+  </section>
+
+  <section class="section invert" id="products">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="mask" data-reveal><span>All products</span></h2>
+        <p data-reveal>Pick a tool, pick how long you need it. Prices change with the length.</p>
+      </div>
+      <div class="filters" id="filters" role="group" aria-label="Filter products by type"></div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </section>
+
+  <section class="section" id="bundles">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="mask" data-reveal><span>Bundles</span></h2>
+        <p data-reveal>Ready-made packs, 30 days each. One checkout, one key per tool.</p>
+      </div>
+      <div class="bundles" id="bundleList"></div>
+    </div>
+  </section>
+
+  <section class="section invert" id="status">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="mask" data-reveal><span>Status</span></h2>
+        <p data-reveal>Checked against each game's current build.</p>
+      </div>
+      <div class="status" id="statusList"></div>
+    </div>
+  </section>
+
+  <section class="section" id="keys">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="mask" data-reveal><span>My keys</span></h2>
+        <p data-reveal>Every licence you own, with the time left on it.</p>
+      </div>
+      <div class="keys__summary" id="keysSummary" data-reveal></div>
+      <div class="keys" id="keyList"></div>
+    </div>
+  </section>
+
+  <section class="section section--steps">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="mask" data-reveal><span>From checkout to in-game</span></h2>
+      </div>
+      <ol class="steps">
+        <li data-reveal>
+          <span class="steps__n">1</span>
+          <h3>Choose a tool</h3>
+          <p>Pick a single product or a bundle and how long you want it for.</p>
+        </li>
+        <li data-reveal>
+          <span class="steps__n">2</span>
+          <h3>Get your key</h3>
+          <p>The licence key lands in My keys as soon as the order completes.</p>
+        </li>
+        <li data-reveal>
+          <span class="steps__n">3</span>
+          <h3>Activate in the loader</h3>
+          <p>Paste the key into the loader once. It locks to your machine until you reset it.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section invert" id="faq">
+    <div class="wrap faq">
+      <div class="section__head">
+        <h2 class="mask" data-reveal><span>Questions</span></h2>
+      </div>
+      <div class="faq__list" id="faqList"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p class="footer__big">noclip</p>
+    <div class="footer__row">
+      <p>This is a demo project. Nothing is sold, no payment is taken and no software is delivered. The games and products are made up.</p>
+      <nav aria-label="Footer">
+        <a href="#products">Products</a>
+        <a href="#bundles">Bundles</a>
+        <a href="#keys">My keys</a>
+        <a href="#top">Back to top</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" hidden data-lenis-prevent>
+  <div class="drawer__head">
+    <h2 id="drawerTitle">Cart</h2>
+    <button class="link-btn" id="cartClose" type="button">Close</button>
+  </div>
+  <div class="drawer__body" id="cartItems"></div>
+  <div class="drawer__foot">
+    <div class="drawer__total"><span>Total</span><span id="cartTotal">€0.00</span></div>
+    <button class="btn btn--solid btn--full" id="checkout" type="button">Complete demo order</button>
+    <p class="drawer__note">Demo store. No payment is taken and nothing is delivered.</p>
+  </div>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="vendor/lenis.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
