@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>noclip — demo store</title>
+<title>noclip demo store</title>
 <meta name="description" content="A demo storefront concept. Nothing is sold here.">
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -23,6 +23,7 @@
   <a class="wordmark" href="#top">noclip</a>
   <nav class="nav" id="nav" aria-label="Main">
     <a href="#popular">Popular</a>
+    <a href="#games">Games</a>
     <a href="#products">Products</a>
     <a href="#bundles">Bundles</a>
     <a href="#status">Status</a>
@@ -42,50 +43,51 @@
   <section class="hero">
     <div class="wrap">
       <h1 class="hero__title">
-        <span class="mask"><span>See everything.</span></span>
-        <span class="mask"><span>Miss nothing.</span></span>
+        <span class="mask"><span>Tools for the games</span></span>
+        <span class="mask"><span>you already play.</span></span>
       </h1>
       <div class="hero__row">
-        <p class="hero__lede">Aim, visuals and utility tools for five games. Your key arrives the moment you check out, and every build is updated within hours of a patch.</p>
+        <p class="hero__lede">Aim, visuals and utility tools for five games. Pick one, check out, and the key is in your account straight away.</p>
         <div class="hero__cta">
           <a class="btn btn--solid" href="#products">Browse products</a>
           <a class="btn" href="#bundles">See bundles</a>
         </div>
       </div>
     </div>
-    <div class="wrap">
-      <figure class="preview">
-        <canvas id="preview" aria-label="Animated preview of player outlines and an aim marker"></canvas>
-        <figcaption>
-          <span>Live preview</span>
-          <span id="previewHint">Move your cursor into the frame</span>
-        </figcaption>
-      </figure>
-    </div>
   </section>
 
-  <div class="ticker" aria-hidden="true">
-    <div class="ticker__track" id="ticker"></div>
-  </div>
-
-  <section class="section" id="popular">
+  <section class="section section--tight" id="popular">
     <div class="wrap">
       <div class="section__head">
-        <h2 class="mask" data-reveal><span>Most popular</span></h2>
-        <p data-reveal>What people bought most over the last 30 days.</p>
+        <h2>Most popular</h2>
+        <p>What people bought most over the last 30 days.</p>
       </div>
-      <ol class="rank" id="rank"></ol>
+      <div class="pops" id="popularList"></div>
     </div>
   </section>
 
-  <section class="section invert" id="products">
+  <section class="section" id="games">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="mask" data-reveal><span>Pick your game</span></h2>
+        <p data-reveal>Choose a game to see only the tools made for it.</p>
+      </div>
+      <div class="games" id="gameList"></div>
+    </div>
+  </section>
+
+  <section class="section" id="products">
     <div class="wrap">
       <div class="section__head">
         <h2 class="mask" data-reveal><span>All products</span></h2>
-        <p data-reveal>Pick a tool, pick how long you need it. Prices change with the length.</p>
+        <p data-reveal>Pick a tool and how long you need it. The price follows the length.</p>
       </div>
-      <div class="filters" id="filters" role="group" aria-label="Filter products by type"></div>
+      <div class="filters">
+        <div class="filters__row" id="gameFilters" role="group" aria-label="Filter products by game"></div>
+        <div class="filters__row" id="filters" role="group" aria-label="Filter products by type"></div>
+      </div>
       <div class="grid" id="grid"></div>
+      <p class="empty" id="noMatch" hidden>No tools match those filters. <button class="link-btn" type="button" id="clearFilters">Show all products</button></p>
     </div>
   </section>
 
@@ -99,13 +101,13 @@
     </div>
   </section>
 
-  <section class="section invert" id="status">
+  <section class="section" id="status">
     <div class="wrap">
       <div class="section__head">
         <h2 class="mask" data-reveal><span>Status</span></h2>
         <p data-reveal>Checked against each game's current build.</p>
       </div>
-      <div class="status" id="statusList"></div>
+      <div class="status panel" id="statusList"></div>
     </div>
   </section>
 
@@ -120,23 +122,23 @@
     </div>
   </section>
 
-  <section class="section section--steps">
+  <section class="section">
     <div class="wrap">
       <div class="section__head">
         <h2 class="mask" data-reveal><span>From checkout to in-game</span></h2>
       </div>
       <ol class="steps">
-        <li data-reveal>
+        <li class="panel" data-reveal>
           <span class="steps__n">1</span>
           <h3>Choose a tool</h3>
           <p>Pick a single product or a bundle and how long you want it for.</p>
         </li>
-        <li data-reveal>
+        <li class="panel" data-reveal style="--d:.08s">
           <span class="steps__n">2</span>
           <h3>Get your key</h3>
           <p>The licence key lands in My keys as soon as the order completes.</p>
         </li>
-        <li data-reveal>
+        <li class="panel" data-reveal style="--d:.16s">
           <span class="steps__n">3</span>
           <h3>Activate in the loader</h3>
           <p>Paste the key into the loader once. It locks to your machine until you reset it.</p>
@@ -145,7 +147,7 @@
     </div>
   </section>
 
-  <section class="section invert" id="faq">
+  <section class="section" id="faq">
     <div class="wrap faq">
       <div class="section__head">
         <h2 class="mask" data-reveal><span>Questions</span></h2>
@@ -157,17 +159,17 @@
 </main>
 
 <footer class="footer">
-  <div class="wrap">
-    <p class="footer__big">noclip</p>
-    <div class="footer__row">
+  <div class="wrap footer__row">
+    <div>
+      <p class="wordmark">noclip</p>
       <p>This is a demo project. Nothing is sold, no payment is taken and no software is delivered. The games and products are made up.</p>
-      <nav aria-label="Footer">
-        <a href="#products">Products</a>
-        <a href="#bundles">Bundles</a>
-        <a href="#keys">My keys</a>
-        <a href="#top">Back to top</a>
-      </nav>
     </div>
+    <nav aria-label="Footer">
+      <a href="#products">Products</a>
+      <a href="#bundles">Bundles</a>
+      <a href="#keys">My keys</a>
+      <a href="#top">Back to top</a>
+    </nav>
   </div>
 </footer>
 

@@ -7,7 +7,13 @@
 
   /* ---------------- data (all made up) ---------------- */
 
-  const GAMES = ['Vanta Strike', 'Null Sector', 'Ironveil', 'Dead Orbit', 'Kilo Royale'];
+  const GAMES = [
+    { name: 'Vanta Strike', genre: 'Tactical shooter' },
+    { name: 'Null Sector', genre: 'Extraction shooter' },
+    { name: 'Ironveil', genre: 'Dungeon raids' },
+    { name: 'Dead Orbit', genre: 'Space combat' },
+    { name: 'Kilo Royale', genre: 'Battle royale' },
+  ];
 
   const DURATIONS = [
     { id: 'd1', label: '1 day', days: 1, mult: 0.14 },
@@ -72,9 +78,9 @@
   ];
 
   const GLYPHS = {
-    Aim: '<circle cx="28" cy="28" r="17"/><circle cx="28" cy="28" r="2.5" class="fill"/><g class="spin"><path d="M28 4v12M28 40v12M4 28h12M40 28h12"/></g>',
+    Aim: '<circle cx="28" cy="28" r="17"/><circle cx="28" cy="28" r="2.5" class="fill"/><path d="M28 4v12M28 40v12M4 28h12M40 28h12"/>',
     Visuals: '<path d="M14 8H8v8M42 8h6v8M14 48H8v-8M42 48h6v-8"/><circle cx="28" cy="19" r="5"/><path d="M19 44V33a9 9 0 0 1 18 0v11"/>',
-    Utility: '<circle cx="28" cy="28" r="22"/><circle cx="28" cy="28" r="12"/><g class="spin"><path d="M28 28L44 13"/></g><circle cx="37" cy="36" r="2" class="fill"/><circle cx="19" cy="22" r="2" class="fill"/>',
+    Utility: '<circle cx="28" cy="28" r="22"/><circle cx="28" cy="28" r="12"/><path d="M28 28L44 13"/><circle cx="37" cy="36" r="2" class="fill"/><circle cx="19" cy="22" r="2" class="fill"/>',
     Spoofer: '<rect x="14" y="14" width="28" height="28"/><rect x="22" y="22" width="12" height="12"/><path d="M20 14V6M28 14V6M36 14V6M20 50v-8M28 50v-8M36 50v-8M14 20H6M14 28H6M14 36H6M50 20h-8M50 28h-8M50 36h-8"/>',
   };
   const glyph = cat => `<svg class="glyph" viewBox="0 0 56 56" aria-hidden="true">${GLYPHS[cat]}</svg>`;
@@ -128,34 +134,42 @@
 
   /* ---------------- render: static lists ---------------- */
 
-  $('#ticker').innerHTML = [...GAMES, ...GAMES, ...GAMES, ...GAMES].map(g => `<span>${g}</span>`).join('');
-
-  $('#rank').innerHTML = [...PRODUCTS].sort((a, b) => b.sold - a.sold).slice(0, 5).map((p, i) => `
-    <li data-reveal style="--d:${i * 0.06}s">
-      <div class="rank__row">
-        <span class="rank__n">${i + 1}</span>
-        <div>
-          <div class="rank__name">${p.name}</div>
-          <div class="rank__meta">${p.cat} for ${p.game}</div>
-        </div>
-        <div class="rank__sold">${p.sold.toLocaleString('en')} sold</div>
-        <div class="rank__buy">
-          <span class="rank__price">${money(priceOf(p, 'd30'))} / 30 days</span>
-          <button class="btn btn--small" type="button" data-add="${p.id}" data-dur="d30">Add to cart</button>
-        </div>
+  $('#popularList').innerHTML = [...PRODUCTS].sort((a, b) => b.sold - a.sold).slice(0, 4).map((p, i) => `
+    <article class="pop" style="--d:${0.45 + i * 0.08}s">
+      <div class="pop__top">${glyph(p.cat)}<span class="pop__rank">No. ${i + 1}</span></div>
+      <div>
+        <h3 class="pop__name">${p.name}</h3>
+        <p class="pop__meta">${p.cat} for ${p.game}</p>
       </div>
-    </li>`).join('');
+      <div class="pop__foot">
+        <span class="pop__price">${money(priceOf(p, 'd30'))} <small>/ 30 days</small></span>
+        <button class="btn btn--small btn--solid" type="button" data-add="${p.id}" data-dur="d30">Add to cart</button>
+      </div>
+    </article>`).join('');
 
-  const cats = ['All', ...new Set(PRODUCTS.map(p => p.cat))];
-  $('#filters').innerHTML = cats.map(c => {
-    const n = c === 'All' ? PRODUCTS.length : PRODUCTS.filter(p => p.cat === c).length;
-    return `<button class="chip" type="button" data-cat="${c}" aria-pressed="${c === 'All'}">${c}<small>${n}</small></button>`;
+  $('#gameList').innerHTML = GAMES.map((g, i) => {
+    const own = PRODUCTS.filter(p => p.game === g.name);
+    const from = Math.min(...own.map(p => priceOf(p, 'd1')));
+    return `<button class="game" type="button" data-pick-game="${g.name}" data-reveal style="--d:${i * 0.06}s">
+      <span class="game__name">${g.name}</span>
+      <span class="game__genre">${g.genre}</span>
+      <span class="game__count">${own.length} ${own.length === 1 ? 'tool' : 'tools'}, from ${money(from)}</span>
+    </button>`;
   }).join('');
 
+  const cats = ['All', ...new Set(PRODUCTS.map(p => p.cat))];
+  $('#filters').innerHTML = cats.map(c =>
+    `<button class="chip" type="button" data-cat="${c}" aria-pressed="${c === 'All'}">${c === 'All' ? 'All types' : c}</button>`).join('');
+  $('#gameFilters').innerHTML = ['All', ...GAMES.map(g => g.name)].map(g =>
+    `<button class="chip" type="button" data-game="${g}" aria-pressed="${g === 'All'}">${g === 'All' ? 'All games' : g}</button>`).join('');
+
   $('#grid').innerHTML = PRODUCTS.map((p, i) => `
-    <article class="card" data-cat="${p.cat}" data-pid="${p.id}" data-dur="d30" data-reveal style="--d:${(i % 3) * 0.07}s">
-      <div class="card__top">${glyph(p.cat)}<span class="tag">${p.cat}<br>${p.game}</span></div>
-      <h3 class="card__name">${p.name}</h3>
+    <article class="card" data-cat="${p.cat}" data-game="${p.game}" data-pid="${p.id}" data-dur="d30" data-reveal style="--d:${(i % 3) * 0.07}s">
+      <div class="card__top">${glyph(p.cat)}<span class="tag">${p.cat}</span></div>
+      <div>
+        <h3 class="card__name">${p.name}</h3>
+        <p class="card__game">${p.game}</p>
+      </div>
       <p class="card__desc">${p.desc}</p>
       <ul class="card__feats">${p.feats.map(f => `<li>${f}</li>`).join('')}</ul>
       <div class="card__foot">
@@ -164,7 +178,7 @@
         </div>
         <div class="card__buy">
           <span class="price">${money(priceOf(p, 'd30'))}</span>
-          <button class="btn btn--small" type="button" data-add-card>Add to cart</button>
+          <button class="btn btn--small btn--solid" type="button" data-add-card>Add to cart</button>
         </div>
       </div>
     </article>`).join('');
@@ -172,7 +186,7 @@
   $('#bundleList').innerHTML = BUNDLES.map((b, i) => `
     <article class="bundle${b.best ? ' bundle--best' : ''}" data-reveal style="--d:${i * 0.09}s">
       <div>
-        <h3 class="bundle__name">${b.name}</h3>
+        <div class="bundle__head"><h3 class="bundle__name">${b.name}</h3>${b.best ? '<span class="bundle__pick">Most chosen</span>' : ''}</div>
         <p class="bundle__for">${b.who}</p>
       </div>
       <ul class="bundle__items">
@@ -192,7 +206,7 @@
     ${STATUS.map((s, i) => `
     <div class="status__row" data-reveal style="--d:${i * 0.05}s">
       <span class="status__game">${s.game}</span>
-      <span class="status__state"><i class="dot ${s.state === 'Undetected' ? 'dot--live' : 'dot--hollow'}"></i>${s.state}</span>
+      <span class="status__state"><i class="dot ${s.state === 'Undetected' ? '' : 'dot--hollow'}"></i>${s.state}</span>
       <span class="mono">${s.build}</span>
       <span>${s.ago}</span>
     </div>`).join('')}`;
@@ -249,7 +263,7 @@
           </div>
         </div>
         <div class="key__left">
-          <span class="status__state"><i class="dot ${s.active ? 'dot--live' : 'dot--hollow'}"></i>${s.text}</span>
+          <span class="status__state"><i class="dot ${s.active ? '' : 'dot--hollow'}"></i>${s.text}</span>
           <div class="key__bar"><i></i></div>
         </div>
         <div class="key__actions">
@@ -391,16 +405,39 @@
 
     const chip = e.target.closest('.chip');
     if (chip) {
-      $$('.chip').forEach(c => c.setAttribute('aria-pressed', c === chip));
-      const cat = chip.dataset.cat;
-      const cards = $$('.card');
-      cards.forEach(c => c.classList.add('is-out'));
-      setTimeout(() => {
-        cards.forEach(c => { c.hidden = !(cat === 'All' || c.dataset.cat === cat); });
-        requestAnimationFrame(() => cards.forEach(c => { c.classList.remove('is-out'); c.classList.add('in'); }));
-      }, reduced ? 0 : 260);
+      if (chip.dataset.cat) filter.cat = chip.dataset.cat;
+      if (chip.dataset.game) filter.game = chip.dataset.game;
+      return applyFilter();
     }
+
+    const pick = e.target.closest('[data-pick-game]');
+    if (pick) {
+      filter.game = pick.dataset.pickGame; filter.cat = 'All';
+      applyFilter(false);
+      return scrollToEl($('#products'));
+    }
+
+    if (e.target.closest('#clearFilters')) { filter.cat = 'All'; filter.game = 'All'; applyFilter(); }
   });
+
+  const filter = { cat: 'All', game: 'All' };
+  function applyFilter(animate = true) {
+    $$('#filters .chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.cat === filter.cat));
+    $$('#gameFilters .chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.game === filter.game));
+    const cards = $$('.card');
+    const match = c => (filter.cat === 'All' || c.dataset.cat === filter.cat)
+      && (filter.game === 'All' || c.dataset.game === filter.game || c.dataset.game === 'All games');
+    const run = () => {
+      let n = 0;
+      cards.forEach(c => { const ok = match(c); c.hidden = !ok; if (ok) n++; });
+      $('#noMatch').hidden = n > 0;
+      if (lenis) lenis.resize();
+      requestAnimationFrame(() => cards.forEach(c => { c.classList.remove('is-out'); c.classList.add('in'); }));
+    };
+    if (!animate || reduced) return run();
+    cards.forEach(c => c.classList.add('is-out'));
+    setTimeout(run, 240);
+  }
 
   /* FAQ: animate open/close */
   $$('#faqList details').forEach(d => {
@@ -487,159 +524,11 @@
     intro.classList.add('is-done');
     document.body.classList.remove('is-loading');
     document.body.classList.add('is-ready');
-    setTimeout(() => intro.remove(), 1100);
+    setTimeout(() => intro.remove(), 900);
   }
-  if (reduced) endIntro(); else setTimeout(endIntro, 2100);
+  if (reduced) endIntro(); else setTimeout(endIntro, 1900);
   intro.addEventListener('click', endIntro);
   addEventListener('keydown', endIntro, { once: true });
-
-  /* ---------------- hero preview canvas ---------------- */
-
-  (function preview() {
-    const cv = $('#preview'), ctx = cv.getContext('2d');
-    const hint = $('#previewHint');
-    let W = 0, H = 0, dpr = 1, running = false, visible = true;
-    const pointer = { x: 0, y: 0, inside: false };
-    const aim = { x: 0, y: 0 };
-    let auto = 0, autoAt = 0, locked = null;
-
-    const targets = Array.from({ length: 7 }, (_, i) => ({
-      x: Math.random(), y: 0.3 + Math.random() * 0.55,
-      vx: (Math.random() < 0.5 ? -1 : 1) * (0.018 + Math.random() * 0.035),
-      vy: (Math.random() - 0.5) * 0.012,
-      size: 0.16 + Math.random() * 0.2,
-      hp: 0.25 + Math.random() * 0.75,
-      dist: 12 + Math.round(Math.random() * 80),
-      phase: Math.random() * 6,
-      id: i,
-    }));
-
-    function resize() {
-      const r = cv.getBoundingClientRect();
-      dpr = Math.min(devicePixelRatio || 1, 2);
-      W = r.width; H = r.height;
-      cv.width = W * dpr; cv.height = H * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      if (!aim.x) { aim.x = W / 2; aim.y = H / 2; }
-      if (!running) draw(0);
-    }
-
-    const geom = t => {
-      const h = t.size * H, w = h * 0.4;
-      const x = t.x * W, y = t.y * H;
-      return { x, y, w, h, headX: x, headY: y - h / 2 + h * 0.1, headR: h * 0.085 };
-    };
-
-    function brackets(x, y, w, h, len) {
-      ctx.beginPath();
-      ctx.moveTo(x, y + len); ctx.lineTo(x, y); ctx.lineTo(x + len, y);
-      ctx.moveTo(x + w - len, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + len);
-      ctx.moveTo(x + w, y + h - len); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w - len, y + h);
-      ctx.moveTo(x + len, y + h); ctx.lineTo(x, y + h); ctx.lineTo(x, y + h - len);
-      ctx.stroke();
-    }
-
-    let last = 0;
-    function draw(ts) {
-      const dt = Math.min(0.05, (ts - last) / 1000 || 0.016); last = ts;
-      ctx.clearRect(0, 0, W, H);
-
-      // floor grid in perspective
-      ctx.lineWidth = 1; ctx.strokeStyle = '#1c1c1c';
-      const hz = H * 0.34;
-      ctx.beginPath();
-      for (let i = -12; i <= 12; i++) { ctx.moveTo(W / 2 + i * 26, hz); ctx.lineTo(W / 2 + i * 190, H); }
-      for (let j = 0; j < 9; j++) { const y = hz + (H - hz) * Math.pow(j / 8, 2.1); ctx.moveTo(0, y); ctx.lineTo(W, y); }
-      ctx.stroke();
-
-      // move targets
-      targets.forEach(t => {
-        t.x += t.vx * dt; t.y += t.vy * dt + Math.sin(ts / 900 + t.phase) * 0.00025;
-        if (t.x < 0.05 || t.x > 0.95) t.vx *= -1;
-        if (t.y < 0.32 || t.y > 0.8) t.vy *= -1;
-        t.x = Math.min(0.95, Math.max(0.05, t.x));
-      });
-
-      // where the aim marker wants to go
-      let want;
-      if (pointer.inside) want = { x: pointer.x, y: pointer.y };
-      else {
-        if (ts > autoAt) { auto = (auto + 1 + Math.floor(Math.random() * 3)) % targets.length; autoAt = ts + 1900; }
-        const g = geom(targets[auto]); want = { x: g.headX, y: g.headY };
-      }
-      const fov = Math.min(120, W * 0.14);
-      locked = null; let best = fov;
-      targets.forEach(t => {
-        const g = geom(t), d = Math.hypot(g.headX - want.x, g.headY - want.y);
-        if (d < best) { best = d; locked = t; }
-      });
-      if (locked) { const g = geom(locked); want = { x: g.headX, y: g.headY }; }
-      const k = reduced ? 1 : 1 - Math.pow(0.0009, dt);
-      aim.x += (want.x - aim.x) * k; aim.y += (want.y - aim.y) * k;
-
-      // targets
-      [...targets].sort((a, b) => a.size - b.size).forEach(t => {
-        const g = geom(t), on = t === locked;
-        const x = g.x - g.w / 2, y = g.y - g.h / 2;
-        ctx.strokeStyle = '#3a3a3a'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(W / 2, H); ctx.lineTo(g.x, y + g.h); ctx.stroke();
-
-        ctx.strokeStyle = on ? '#fff' : '#9a9a9a'; ctx.lineWidth = on ? 2 : 1;
-        // figure
-        ctx.beginPath(); ctx.arc(g.headX, g.headY, g.headR, 0, 6.3); ctx.stroke();
-        const sh = g.headY + g.headR, hip = y + g.h * 0.58;
-        ctx.beginPath();
-        ctx.moveTo(g.x, sh); ctx.lineTo(g.x, hip);
-        ctx.moveTo(g.x - g.w * 0.36, sh + g.h * 0.2); ctx.lineTo(g.x, sh + g.h * 0.06); ctx.lineTo(g.x + g.w * 0.36, sh + g.h * 0.2);
-        ctx.moveTo(g.x - g.w * 0.26, y + g.h); ctx.lineTo(g.x, hip); ctx.lineTo(g.x + g.w * 0.26, y + g.h);
-        ctx.stroke();
-        brackets(x, y, g.w, g.h, Math.max(6, g.w * 0.26));
-
-        // health
-        ctx.fillStyle = '#2b2b2b'; ctx.fillRect(x - 7, y, 3, g.h);
-        ctx.fillStyle = '#fff'; ctx.fillRect(x - 7, y + g.h * (1 - t.hp), 3, g.h * t.hp);
-
-        ctx.fillStyle = on ? '#fff' : '#8c8c8c';
-        ctx.font = '500 11px "IBM Plex Mono", monospace'; ctx.textAlign = 'center';
-        ctx.fillText(`${on ? 'Locked' : 'Player'} ${t.dist}m`, g.x, y - 8);
-        if (on) { ctx.beginPath(); ctx.arc(g.headX, g.headY, 2.5, 0, 6.3); ctx.fill(); }
-      });
-
-      // aim marker
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
-      ctx.setLineDash([3, 6]);
-      ctx.beginPath(); ctx.arc(aim.x, aim.y, fov, 0, 6.3); ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(aim.x - 16, aim.y); ctx.lineTo(aim.x - 5, aim.y);
-      ctx.moveTo(aim.x + 5, aim.y); ctx.lineTo(aim.x + 16, aim.y);
-      ctx.moveTo(aim.x, aim.y - 16); ctx.lineTo(aim.x, aim.y - 5);
-      ctx.moveTo(aim.x, aim.y + 5); ctx.lineTo(aim.x, aim.y + 16);
-      ctx.stroke();
-
-      if (running) requestAnimationFrame(draw);
-    }
-
-    function setRunning(on) {
-      if (reduced) return;
-      if (on && !running) { running = true; last = performance.now(); requestAnimationFrame(draw); }
-      if (!on) running = false;
-    }
-
-    cv.addEventListener('pointermove', e => {
-      const r = cv.getBoundingClientRect();
-      pointer.x = e.clientX - r.left; pointer.y = e.clientY - r.top; pointer.inside = true;
-      hint.textContent = 'The marker pulls to the nearest head inside the circle';
-    });
-    cv.addEventListener('pointerleave', () => { pointer.inside = false; hint.textContent = 'Move your cursor into the frame'; });
-
-    new ResizeObserver(resize).observe(cv);
-    new IntersectionObserver(([en]) => { visible = en.isIntersecting; setRunning(visible && !document.hidden); }).observe(cv);
-    document.addEventListener('visibilitychange', () => setRunning(visible && !document.hidden));
-    resize();
-    setRunning(true);
-  })();
 
   /* ---------------- boot ---------------- */
 
